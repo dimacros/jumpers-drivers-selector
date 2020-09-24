@@ -1,0 +1,25 @@
+{
+  "name": "jumpers-drivers-selector",
+  "version": "1.0.0",
+  "description": "Algorithm to automatically assign a driver to an order.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon -L app.js",
+    "test": "cucumber-js"
+  },
+  "repository": {
+    "url": ""
+  },
+  "keywords": [],
+  "author": "dimacros",
+  "license": "ISC",
+  "dependencies": {
+    "agenda": "^3.1.0",
+    "firebase-admin": "^9.2.0"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "^7.0.0-rc.0",
+    "nodemon": "^2.0.4"
+  }
+}
