@@ -12,7 +12,7 @@ async function getOrders() {
     return await Promise.all(orderPromises);
 }
 
-function getDrivers() {
+async function getDrivers() {
     const drivers = [];
     const snapshot = await firestore.collection('drivers').get();
 

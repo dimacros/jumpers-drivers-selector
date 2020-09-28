@@ -17,7 +17,7 @@ async function createOrder(id, { branch: branchRef, status, time }) {
     };
 }
 
-async function createDriver(id, { connection, lat, long, name }) {
+function createDriver(id, { connection, lat, long, name }) {
     return {
         id,
         connection, 
