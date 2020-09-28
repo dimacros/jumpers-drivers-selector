@@ -15,11 +15,14 @@
   "author": "dimacros",
   "license": "ISC",
   "dependencies": {
+    "@turf/turf": "^5.1.6",
     "agenda": "^3.1.0",
     "firebase-admin": "^9.2.0"
   },
   "devDependencies": {
     "@cucumber/cucumber": "^7.0.0-rc.0",
+    "faker": "^5.1.0",
+    "json-schema-faker": "^0.5.0-rcv.29",
     "nodemon": "^2.0.4"
   }
 }

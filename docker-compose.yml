@@ -12,6 +12,7 @@ services:
             - .:/usr/src/app
         environment:
             - MONGO_URL=mongodb://mongo/jumpers-drivers-selector
+            - GOOGLE_APPLICATION_CREDENTIALS=/usr/src/app/storage/keys/client_credentials.json
     mongo:
         image: mongo
         ports: 
