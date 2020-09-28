@@ -10,6 +10,3 @@ jsf.option('useDefaultValue', true);
 jsf.resolve(schema).then(data => {
   fs.writeFileSync('data.json', JSON.stringify(data));
 });
-
-// sync-version (blocking)
-jsf.generate(schema); // [object Object]
