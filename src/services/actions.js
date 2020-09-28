@@ -3,7 +3,10 @@ const { createOrder, createDriver } = require('./factories');
 
 async function getOrders() {
     const orderPromises = [];
-    const snapshot = await firestore.collection('orders').get();
+    const snapshot = await firestore.collection('orders')
+                                    .where('status', 'in', [3, 4])
+                                    .orderBy('time', 'asc')
+                                    .get();
 
     snapshot.forEach(doc => {
         orderPromises.push(createOrder(doc.id, doc.data()));
@@ -14,10 +17,16 @@ async function getOrders() {
 
 async function getDrivers() {
     const drivers = [];
-    const snapshot = await firestore.collection('drivers').get();
+    const snapshot = await firestore.collection('drivers')
+                                    .where('connection.online', '==', true)
+                                    .get();
 
     snapshot.forEach(doc => {
-        drivers.push(createDriver(doc.id, doc.data()));
+        const driverData = doc.data();
+
+        if (! driverData.hasOwnProperty('order')) {
+            drivers.push(createDriver(doc.id, driverData));
+        }
     });
 
     return drivers;
