@@ -2,18 +2,24 @@ version: "3.7"
 
 services: 
     app:
-        restart: always
         build: .
-        links: 
+        restart: always
+        depends_on: 
             - mongo
-        ports: 
-            - "3000"  
-        volumes: 
+        volumes:
             - .:/usr/src/app
         environment:
-            - MONGO_URL=mongodb://mongo/jumpers-drivers-selector
+            - MONGO_URL=mongodb://mongo:27017/jumpers-drivers-selector
             - GOOGLE_APPLICATION_CREDENTIALS=/usr/src/app/storage/keys/client_credentials.json
+        networks:
+            - app_network
+        ports:
+            - "3000:3000"
     mongo:
-        image: mongo
+        image: mongo:4.4
+        networks:
+            - app_network
         ports: 
-            - "27017"
+            - "27017:27017"
+networks: 
+    app_network:

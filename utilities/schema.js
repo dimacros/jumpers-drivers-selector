@@ -76,7 +76,7 @@ const schema = {
   properties: {
     orders: {
       type: 'array',
-      minItems: 20,
+      minItems: 5,
       items: orderSchema
     },
     drivers: {
@@ -95,12 +95,14 @@ const schema = {
         latitude: {
           type: "number",
           minimum: -90,
-          maximum: 90
+          maximum: 90,
+          faker: 'address.latitude'
         },
         longitude: {
           type: "number",
           minimum: -180,
-          maximum: 180
+          maximum: 180,
+          faker: 'address.longitude'
         }
       }
     }
