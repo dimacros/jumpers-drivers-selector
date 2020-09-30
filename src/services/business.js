@@ -35,7 +35,7 @@ async function processAlgorithm(orders, drivers, driversWithOrder = [] ) {
     drivers.splice(driverFoundIndex, 1);
 
     if (orders.length && drivers.length) {
-        return process(orders, drivers, driversWithOrder);
+        return processAlgorithm(orders, drivers, driversWithOrder);
     }
 
     return driversWithOrder;
