@@ -1,6 +1,6 @@
 const assert = require('assert');
 const { Given, When, Then } = require('@cucumber/cucumber');
-const { process, processToFindDriver } = require('../../src/services/business');
+const { processAlgorithm } = require('../../src/services/business');
 const Driver = require('../../src/models/driver');
 const Order = require('../../src/models/order');
 
@@ -25,7 +25,7 @@ Given('the available drivers:', function (dataTable) {
 });
 
 When('the job scheduler runs', async function () {
-  this.driversWithOrder = await process(this.orders, this.drivers);
+  this.driversWithOrder = await processAlgorithm(this.orders, this.drivers);
 });
 
 Then('the job scheduler should choose the drivers:', function (dataTable) {

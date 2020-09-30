@@ -9,21 +9,17 @@ const agenda = new Agenda({
 agenda.define('check orders and assign driver', async job => {
     const orders = await actions.getOrders();
     const drivers = await actions.getDrivers();
-    const driverPromises = [];
 
     orders.sort((a, b) => b.status > a.status);
 
-    orders.forEach(order => {
-        driverPromises.push(
-            business.processToFindDriver(order, drivers)
-        );
+    const driversWithOrder = await business.processAlgorithm(orders, drivers);
+    const promisesToUpdateDriver = [];
+
+    driversWithOrder.forEach(driver => {
+        promisesToUpdateDriver = business.processToUpdateDriver(driver);
     });
 
-    const selectedDrivers = await Promise.all(driverPromises);
-
-    selectedDrivers.forEach(driver =>  {
-        driver && business.processToUpdateDriver(driver).then(res => console.log(res));
-    });
+    await Promise.all(promisesToUpdateDriver);
 });
 
 const init = async function () {

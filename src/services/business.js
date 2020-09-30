@@ -3,6 +3,58 @@ const mapboxApi = require('../client/mapboxApi');
 const Driver = require('../models/driver');
 const Order = require('../models/order');
 
+/**
+ * @param {Driver} driver
+ */
+async function processToUpdateDriver(driver) {
+    const driverRef = firestore.collection('drivers').doc(driver.id);
+
+    return await driverRef.update({
+        order: {
+            order_request: firestore.collection('orders').doc(driver.order.id)
+        }
+    })
+}
+
+/**
+ * 
+ * @param {Order[]} orders
+ * @param {Driver[]} drivers
+ * @param {Driver[]} driversWithOrder
+ * 
+ * @returns {Promise<Driver[]>}
+ */
+async function processAlgorithm(orders, drivers, driversWithOrder = [] ) {
+    const currentOrder = orders.shift();
+    const driverFoundIndex = await processToFindDriverIndex(currentOrder, drivers);
+
+    driversWithOrder.push(
+        drivers[driverFoundIndex].withOrder(currentOrder)
+    );
+
+    drivers.splice(driverFoundIndex, 1);
+
+    if (orders.length && drivers.length) {
+        return process(orders, drivers, driversWithOrder);
+    }
+
+    return driversWithOrder;
+}
+
+async function processToFindDriverIndex(order, drivers) {
+    const travelDurationPromises = [];
+
+    drivers.forEach((driver, i) => {
+        travelDurationPromises[i] = getTravelDuration(order.branch.location, driver.currentLocation);
+    });
+
+    const travelDurations = await Promise.all(travelDurationPromises);
+    const duration = Math.min(...travelDurations);
+    const driverIndex = travelDurations.findIndex(travelDuration => travelDuration === duration);
+
+    return driverIndex;
+}
+
 async function getTravelDuration(source, destination) {
     const sourceCoordinate = `${source.latitude},${source.longitude}`;
     const destinationCoordinate =  `${destination.latitude},${destination.longitude}`;
@@ -32,57 +84,4 @@ async function getTravelDuration(source, destination) {
     }
 }
 
-/**
- * 
- * @param {Order} order
- * @param {Driver} driver
- */
-async function processToUpdateDriver(driver) {
-    const driverRef = firestore.collection('drivers').doc(driver.id);
-
-    return await driverRef.update({
-        order: {
-            order_request: firestore.collection('orders').doc(driver.order.id)
-        }
-    })
-}
-
-/**
- * 
- * @param {Order[]} orders
- * @param {Driver[]} drivers
- * @param {Driver[]} driversWithOrder
- */
-async function process(orders, drivers, driversWithOrder = [] ) {
-    const currentOrder = orders.shift();
-    const driverFoundIndex = await processToFindDriverIndex(currentOrder, drivers);
-
-    driversWithOrder.push(
-        drivers[driverFoundIndex].withOrder(currentOrder)
-    );
-
-    drivers.splice(driverFoundIndex, 1);
-
-    if (orders.length && drivers.length) {
-        return process(orders, drivers, driversWithOrder);
-    }
-
-    return driversWithOrder;
-}
-
-async function processToFindDriverIndex(order, drivers) {
-    const travelDurationPromises = [];
-
-    drivers.forEach((driver, i) => {
-        travelDurationPromises[i] = getTravelDuration(order.branch.location, driver.currentLocation);
-    });
-
-    const travelDurations = await Promise.all(travelDurationPromises);
-    console.log(travelDurations);
-    const duration = Math.min(...travelDurations);
-    const driverIndex = travelDurations.findIndex(travelDuration => travelDuration === duration);
-
-    return driverIndex;
-}
-
-module.exports = { processToUpdateDriver, process };
+module.exports = { processToUpdateDriver, processAlgorithm };
