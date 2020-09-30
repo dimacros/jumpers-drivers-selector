@@ -1,6 +1,6 @@
 const assert = require('assert');
 const { Given, When, Then } = require('@cucumber/cucumber');
-const { processToFindDriver } = require('../../src/services/business');
+const { process, processToFindDriver } = require('../../src/services/business');
 const Driver = require('../../src/models/driver');
 const Order = require('../../src/models/order');
 
@@ -25,22 +25,13 @@ Given('the available drivers:', function (dataTable) {
 });
 
 When('the job scheduler runs', async function () {
-
-  const driverPromises = [];
-
-  this.orders.forEach(order => {
-    driverPromises.push(processToFindDriver(order, this.drivers));
-  });
-
-  this.selectedDrivers = await Promise.all(driverPromises);
+  this.driversWithOrder = await process(this.orders, this.drivers);
 });
 
 Then('the job scheduler should choose the drivers:', function (dataTable) {
+    dataTable.rows().forEach((row, i) => {
+        [name, _, _, _] = row;
 
-  console.log(this.selectedDrivers);
-  dataTable.rows().forEach((row, i) => {
-    [name, _, lat, long] = row;
-
-    assert.strictEqual(name, this.selectedDrivers[i].name);
-  });
+        assert.strictEqual(name, this.driversWithOrder[i].name);
+    });
 });

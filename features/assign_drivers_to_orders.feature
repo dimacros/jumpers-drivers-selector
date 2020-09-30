@@ -13,7 +13,7 @@ Feature: Assign drivers to orders
       | Driver 2    | El Abuelo Wanka         | -77.041820 | -11.917309 |
       | Driver 3    | Banco de la Nación      | -77.050534 | -11.945274 |
       | Driver 4    | Municipalidad de Comas  | -77.049251 | -11.957042 |
- 
+
   Scenario: Choose Drivers
     When the job scheduler runs
     Then the job scheduler should choose the drivers:

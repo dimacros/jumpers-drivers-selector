@@ -3,7 +3,7 @@ const mapboxApi = require('../client/mapboxApi');
 const Driver = require('../models/driver');
 const Order = require('../models/order');
 
-async function getDurationOptimized(source, destination) {
+async function getTravelDuration(source, destination) {
     const sourceCoordinate = `${source.latitude},${source.longitude}`;
     const destinationCoordinate =  `${destination.latitude},${destination.longitude}`;
     const profile = 'driving-traffic';
@@ -34,27 +34,6 @@ async function getDurationOptimized(source, destination) {
 
 /**
  * 
- * @param {Order} order 
- * @param {Driver[]} drivers 
- */
-async function processToFindDriver(order, drivers) {
-
-    const tripDurationPromises = [];
-
-    drivers.forEach((driver, i) => {
-        tripDurationPromises[i] = getDurationOptimized(order.branch.location, driver.currentLocation);
-    });
-
-    const tripDurations = await Promise.all(tripDurationPromises);
-    const minTripDuration = Math.min(...tripDurations);
-    const index = tripDurations.findIndex(tripDuration => tripDuration === minTripDuration);
-    const selectedDriver = drivers.splice(index, 1)[0];
-
-    return selectedDriver.withOrder(order);
-}
-
-/**
- * 
  * @param {Order} order
  * @param {Driver} driver
  */
@@ -68,4 +47,42 @@ async function processToUpdateDriver(driver) {
     })
 }
 
-module.exports = { processToFindDriver, processToUpdateDriver };
+/**
+ * 
+ * @param {Order[]} orders
+ * @param {Driver[]} drivers
+ * @param {Driver[]} driversWithOrder
+ */
+async function process(orders, drivers, driversWithOrder = [] ) {
+    const currentOrder = orders.shift();
+    const driverFoundIndex = await processToFindDriverIndex(currentOrder, drivers);
+
+    driversWithOrder.push(
+        drivers[driverFoundIndex].withOrder(currentOrder)
+    );
+
+    drivers.splice(driverFoundIndex, 1);
+
+    if (orders.length && drivers.length) {
+        return process(orders, drivers, driversWithOrder);
+    }
+
+    return driversWithOrder;
+}
+
+async function processToFindDriverIndex(order, drivers) {
+    const travelDurationPromises = [];
+
+    drivers.forEach((driver, i) => {
+        travelDurationPromises[i] = getTravelDuration(order.branch.location, driver.currentLocation);
+    });
+
+    const travelDurations = await Promise.all(travelDurationPromises);
+    console.log(travelDurations);
+    const duration = Math.min(...travelDurations);
+    const driverIndex = travelDurations.findIndex(travelDuration => travelDuration === duration);
+
+    return driverIndex;
+}
+
+module.exports = { processToUpdateDriver, process };
